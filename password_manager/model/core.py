@@ -52,30 +52,44 @@ class passwordStorage:
         # read storage
         try:
             with open(self.__external_storage_path, 'r', encoding='utf-8') as f:
-                try:
-                    storage = json.load(f)
-                except Exception as e:
-                    self.__logger.fatal('error with json loading storage', stack_info=True)
+                storage = json.load(f)
         except Exception as e:
-            self.__logger.fatal('error with reading storage', stack_info=True)
+            self.__logger.fatal(f'error with reading storage (add_app)\n{e}', stack_info=True)
 
-        
         # adding storage
-        storage[f'{app} - {login}'] = {
-            "app": app,
-            "login": login,
-            "password": password,
-            "add_info": add_info
-        }
+        try:
+            storage[f'{app} - {login}'] = {
+                "app": app,
+                "login": login,
+                "password": password,
+                "add_info": add_info
+            }
+        except Exception as e:
+            self.__logger.fatal(f'error with adding storage (add_app)\n{e}', stack_info=True)
 
         # write storage
         try:
             with open(self.__external_storage_path, 'w', encoding='utf-8') as f:
-                try:
-                    json.dump(storage, f)
-                except Exception as e:
-                    self.__logger.fatal('error with json dumping storage', stack_info=True)
+                json.dump(storage, f)
         except Exception as e:
-            self.__logger.fatal('error with writing storage', stack_info=True)
+            self.__logger.fatal(f'error with writing storage (add_app)\ncheck the availability of the storage and the json dict written in it\n{e}', stack_info=True)
 
         return storage[f'{app} - {login}']
+
+
+    def get_storage(self) -> dict:
+        '''
+        get dict with storage
+        '''
+        try:
+            with open(self.__external_storage_path, 'r', encoding='utf-8') as f:
+                storage = json.load(f)
+        except Exception as e:
+            self.__logger.fatal(f'error with reading storage (get_storage)\n{e}', stack_info=True)
+        
+        return storage
+
+password_storage = passwordStorage(r'A:\password_storage.json')
+password_storage.add_app('1app', 'login', add_info='1 add info')
+password_storage.add_app('2app', 'login', add_info='2 add info')
+print(password_storage.get_storage())
