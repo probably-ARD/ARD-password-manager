@@ -1,21 +1,24 @@
-import os
 import json
 import logging
+from password_manager.model.core_config import *
 
 
 class passwordStorage:
     def __init__(self, external_storage_path: str):
         # make logger
         logger = logging.getLogger('core-logger')
-        logger.setLevel(logging.INFO)
+        logger.setLevel(LOG_LVL)
 
         formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
-        handler = logging.FileHandler(r'password_manager_log.log', encoding='utf-8')
+        handler = logging.FileHandler(LOG_PATH, encoding='utf-8')
         handler.setFormatter(formatter)
 
         logger.addHandler(handler)
         
-        logger.info(f'start core\npath: {external_storage_path}')
+        logger.info(f'start __init__')
+        logger.debug(f'(__init__) params\n\tstorage path: {external_storage_path}')
+
+        self.__logger = logger
 
         # check parameters
         self.__check_params(
@@ -27,32 +30,42 @@ class passwordStorage:
         try:
             with open(external_storage_path, 'r', encoding='utf-8') as f:
                 storage = dict(json.load(f))
+            logger.debug(f'(__init__) reading storage\n\tstorage: {storage}')
         except Exception as e:
-            logger.fatal(f'error with reading storage (__init__)\n{e}', stack_info=True)
+            logger.warning(f'(__init__) Error with reading storage\n{e}', stack_info=True)
         
-        self.__logger = logger
         self.__external_storage_path = external_storage_path
         self.__storage = storage
 
 
-    def __save_storage(self, storage: dict) -> None:
+    def __save_storage(self) -> None:
         '''
-        simple writing storage
+        func to fast and simple writing storage\n
+        !!! storage writing from self.__storage !!!
         '''
+        self.__logger.info('start __save_storage')
+        self.__logger.debug(f'(__save_storage) params\n\tstorage: {self.__storage}')
+        
         try:
             with open(self.__external_storage_path, 'w', encoding='utf-8') as f:
-                json.dump(storage, f)
+                json.dump(self.__storage, f)
+            self.__logger.debug(f'(__save_storage) writing storage DONE\n')
         except Exception as e:
-            self.__logger.fatal(f'error with writing storge\nstorage: {storage}\n{e}', stack_info=True)
+            self.__logger.warning(f'(__save_storage) Error with writing storge\n{e}', stack_info=True)
 
 
     def __check_params(self,
             params: list,
             params_types: list
-    ):
+    ) -> None:
         '''
-        func to simple params cheking
+        func to simple params cheking\n
+        it must checking all others methods parameters\n
+        raising TypeError if param doesn't match the stated
         '''
+        self.__logger.info('start __check_params')
+        self.__logger.debug(f'(__check_params)\n\tparams: {params}\n\tparams_types: {params_types}\n')
+        
         for i in range(len(params)):
             if not isinstance(params[i], params_types[i]):
                 raise TypeError(f'{params[i]} must be of the {params_types[i]} type')
@@ -63,11 +76,16 @@ class passwordStorage:
                 login: str, 
                 password: str = None, 
                 add_info: str = None
-    ) -> dict:
+    ) -> None:
         '''
-        adding app in storage
+        adding app in storage\n
+        if the app and login is already in the storage,\n
+        then they are overwritten on top of the old ones\n
+        !!! ^there not checks^ !!!
         '''
-        self.__logger.info('adding app')
+        
+        self.__logger.info('start add_app')
+        self.__logger.debug(f'(add_app) params:\n\tapp: {app}\n\tlogin: {login}\n\tpassword: {password}\n\tadd_info: {add_info}')
 
         # check parameters
         self.__check_params(
@@ -75,101 +93,109 @@ class passwordStorage:
             [str, str, (str, type(None)), (str, type(None))]
         )
         
-        storage = self.__storage
-
         # adding storage
         try:
-            storage[f'{app}-{login}'] = {
+            self.__storage[f'{app}-{login}'] = {
                 "app": app,
                 "login": login,
                 "password": password,
                 "add_info": add_info
             }
+            self.__logger.debug(f'(add_app) adding storage DONE\n')
         except Exception as e:
-            self.__logger.fatal(f'error with adding storage (add_app)\n{e}', stack_info=True)
+            self.__logger.warning(f'(add_app) Error with adding storage\n{e}', stack_info=True)
 
         # write storage
-        self.__save_storage(storage)
-        self.__storage = storage
-
-        return storage
+        self.__save_storage()
 
 
     def get_storage(self) -> dict:
         '''
         get dict with storage
         '''
-        storage = self.__storage
-        
-        self.__logger.info(f'getting storage {storage}')
-        return storage
+        self.__logger.info('start get_storage')
+        self.__logger.debug(f'(get_storage)\n\tstorage: {self.__storage}\n')
+        # dict() need to make copy storage
+        return dict(self.__storage)
 
     
-    def edit_storage(self,
+    def del_app(self, app_name: str) -> None:
+        '''
+        delete app from storage
+        '''
+        self.__logger.info('start del_app')
+        self.__logger.debug(f'(del_app) params:\n\tapp_name: {app_name}')
+        self.__check_params([app_name], [str])
+        
+        try:
+            self.__storage.pop(app_name)
+            self.__logger.debug(f'(del_app) deliting DONE\n')
+            self.__save_storage()
+        except Exception as e:
+            self.__logger.warning(f'(del_app) Error with adding storage\n{e}', stack_info=True)
+    
+    def edit_app(self,
             app_name: str,
             **kwargs: str
     ) -> None:
         '''
         edit storage\n
-        **kwargs: app, login, password, add_info: all str type
+        **kwargs: app: str, login: str, password: str, add_info: str
         '''
+        self.__logger.info('start edit_app')
+        self.__logger.debug(f'(edit_app) params:\n\tapp_name: {app_name}\n\tkwargs: {kwargs}')
+        
         # check parameter
         self.__check_params([app_name], [str])
         
-        # create editing app and check kwargs with adding it in editing app
-        editing_app = {'app': '', 'login': '', 'password': '', 'add_inf': ''}
+        # create new_app and check kwargs with adding it in new_app
+        new_app = dict(APP_STRUCT)
         
         if 'app' in kwargs:
             self.__check_params([kwargs['app']], [str])
-            editing_app['app'] = kwargs['app']
+            new_app['app'] = kwargs['app']
         else:
-            editing_app['app'] = ''
+            new_app['app'] = ''
         
         if 'login' in kwargs:
             self.__check_params([kwargs['login']], [str])
-            editing_app['login'] = kwargs['login']
+            new_app['login'] = kwargs['login']
         else:
-            editing_app['login'] = ''
+            new_app['login'] = ''
         
         if 'password' in kwargs:
             self.__check_params([kwargs['password']], [str])
-            editing_app['password'] = kwargs['password']
+            new_app['password'] = kwargs['password']
         else:
-            editing_app['password'] = ''
+            new_app['password'] = ''
 
         if 'add_info' in kwargs:
             self.__check_params([kwargs['add_info']], [str])
-            editing_app['add_info'] = kwargs['add_info']
+            new_app['add_info'] = kwargs['add_info']
         else:
-            editing_app['add_info'] = ''
+            new_app['add_info'] = ''
                 
-        # reading storage
-        old_storage = self.__storage
-
-        # edited storage
-        edited_app = old_storage[app_name]
-        # delete old app
-        old_storage.pop(app_name)
-
-        for key, data in editing_app:
-            if data != '':
-                edited_app[key] = data
+        # get old app inf
+        try:
+            old_app = self.__storage[app_name]
+            self.__logger.debug(f'(edit_app) get old_app DONE')
+        except KeyError:
+            self.__logger.debug(f"(edit_app) KeyError storage haven't app with {app_name} app_name", stack_info=True)
+            raise KeyError(f"storage haven't app with {app_name} app_name")
         
+        # get new + old app
+        for key in new_app.keys():
+            if new_app[key] == '':
+                new_app[key] = old_app[key]
+        
+        # removing old app
+        self.del_app(app_name)
+        self.__logger.debug(f'(edit_app) removing old app DONE')
+        # writing new app
         self.add_app(
-            app=edited_app['app'], 
-            login=edited_app['login'],
-            password=edited_app['password'],
-            add_info=edited_app['add_info']
+            app=new_app['app'],
+            login=new_app['login'],
+            password=new_app['password'],
+            add_info=new_app['add_info']
         )
-        
-
-    def del_app(self, app_name: str) -> None:
-        '''
-        delete app from storage
-        '''
-        self.__check_params([app_name], [str])
-        storage = self.__storage
-
-        storage.pop(app_name)
-
-        self.__save_storage(storage)
+        self.__logger.debug(f'(edit_app) writing new app DONE\n')
