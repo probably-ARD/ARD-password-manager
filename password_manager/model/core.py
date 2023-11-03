@@ -1,5 +1,6 @@
 import json
 import logging
+from random import randint
 from password_manager.model.core_config import *
 
 
@@ -52,6 +53,57 @@ class passwordStorage:
             self.__logger.debug(f'(__save_storage) writing storage DONE\n')
         except Exception as e:
             self.__logger.warning(f'(__save_storage) Error with writing storge\n{e}', stack_info=True)
+
+    
+    def __gen_password(self,
+        numbs: bool = True,
+        spec_symbs: bool = True,
+        alph_lower: bool = True,
+        alph_upper: bool = True,
+        password_len: int = 12,
+        add_symbs: str = None
+    ) -> str:
+        '''
+        generate random password
+        '''
+        self.__logger.info('start __gen_password')
+        self.__logger.debug(f'(__gen_password) params\n\tnumbs: {numbs}\n\tspec_symbs: {spec_symbs}\n\talph_lower: {alph_lower}\n\talph_upper: {alph_upper}\n\tpassword_len: {password_len}\n\tadd_symbs: {add_symbs}')
+        # check parameters
+        self.__check_params(
+            [numbs, spec_symbs, alph_lower, alph_upper, password_len, add_symbs],
+            [bool, bool, bool, bool, int, (str, type(None))]
+        )
+        if password_len <= 0:
+            self.__logger.warning('ValueError password_len must be > 0')
+            raise ValueError('password_len must be > 0')
+
+
+        # generate alphabet of allowed symbols
+        symbs = []
+        if numbs == True:
+            symbs.append('1234567890')
+        
+        if spec_symbs == True:
+            symbs.append('!$%()?*[]^@')
+        
+        if alph_lower == True:
+            symbs.append('abcdefghijklmnopqrstuvwxyz')
+        
+        if alph_upper == True:
+            symbs.append('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        
+        if add_symbs is not None:
+            symbs.append(add_symbs)
+
+        # password generation
+        password = ''
+        for i in range(password_len):
+            alph = randint(0, len(symbs)-1)
+            alph_sym = randint(0, len(symbs[alph])-1)
+            password += symbs[alph][alph_sym]
+        
+        self.__logger.debug(f'password generation is DONE\n\tpassword: {password}')
+        return password
 
 
     def __check_params(self,
