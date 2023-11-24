@@ -1,4 +1,4 @@
-# The simple password manager
+#The simple password manager
 
 Простой менеджер паролей. Пока что без шифрования, а все данные хранит в json'е.
 
