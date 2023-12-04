@@ -127,10 +127,12 @@ class passwordStorage:
                 app: str, 
                 login: str, 
                 password: str = None, 
-                add_info: str = None
+                add_info: str = None,
+                **kwargs: bool
     ) -> None:
         '''
         adding app in storage\n
+        if password: None -> generating password\n
         if the app and login is already in the storage,\n
         then they are overwritten on top of the old ones\n
         !!! ^there not checks^ !!!
