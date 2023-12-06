@@ -81,3 +81,50 @@ class checkWin(tk.Tk):
         self.password_btn = tk.Button(self.btns_frame, text=conf['copy_password_btn_caption'],
                                        width=13, height=2)
         self.password_btn.grid(row=2, pady=5)
+
+class addNewApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        conf = wins_config.ADD_NEW_APP_WIN_CONF
+
+        # win confs
+        self.geometry("620x415+600+300")
+        #self.resizable(False, False)
+        self.title(conf['win_title'])
+
+        # app frame
+        self.app_frame = tk.Frame(self, width=400, height=400, background='red')
+        self.app_frame.grid(column=1, row=1, padx=5, pady=5)
+
+        # app name
+        self.app_textbox = tk.Text(self.app_frame, width=40, height=2)
+        self.app_textbox.grid(column=1, row=1, pady=5)
+
+        self.app_label = tk.Label(self.app_frame, text=conf['app_label'], width=10, height=2)
+        self.app_label.grid(column=2, row=1, padx=5, pady=5)
+
+        # app login
+        self.login_textbox = tk.Text(self.app_frame, width=40, height=2)
+        self.login_textbox.grid(column=1, row=2, pady=5)
+
+        self.login_label = tk.Label(self.app_frame, text=conf['login_label'], width=10, height=2)
+        self.login_label.grid(column=2, row=2, pady=5, padx=5)
+
+        # app password
+        self.password_textbox = tk.Text(self.app_frame, width=40, height=2)
+        self.password_textbox.grid(column=1, row=3, pady=5)
+
+        self.password_label = tk.Label(self.app_frame, text=conf['password_label'], width=10, height=2)
+        self.password_label.grid(column=2, row=3, padx=5, pady=5)
+
+        # app add info
+        self.add_info_textbox = tk.Text(self.app_frame, width=40, height=5)
+        self.add_info_textbox.grid(column=1, row=4, pady=5)
+
+        self.add_info_label = tk.Label(self.app_frame, text=conf['add_info_label'], width=10, height=5)
+        self.add_info_label.grid(column=2, row=4, padx=5, pady=5)
+
+        # gen password frame
+        self.gen_password_frame = tk.Frame(self, width=200, height=400, background='black')
+        self.gen_password_frame.grid(column=2, row=1, padx=5, pady=5)
