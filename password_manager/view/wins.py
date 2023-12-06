@@ -50,17 +50,34 @@ class mainWin(tk.Tk):
         self.del_btn.grid(row=4, pady=5)
 
 
-class chekWin(tk.Tk):
+class checkWin(tk.Tk):
     def __init__(self, 
                  login: str, 
                  password: str,
-                 data: list
+                 data: str
                  ):
         super().__init__()
 
         conf = wins_config.CHECK_WIN_CONF
 
         # win confs
-        self.geometry("400x205+600+300")
+        self.geometry("400x210+600+300")
         self.resizable(False, False)
         self.title(conf['win_title'])
+
+        # storage info label
+        self.label = tk.Label(self, text=data, width=39, height=13)
+        self.label.grid(column=1, row=1, padx=5, pady=5)
+
+        # btns frame
+        self.btns_frame = tk.Frame(self, width=100, height=200)
+        self.btns_frame.grid(column=2, row=1, padx=5, pady=5)
+
+        # btns
+        self.login_btn = tk.Button(self.btns_frame, text=conf['copy_login_btn_caption'],
+                                    width=13, height=2)
+        self.login_btn.grid(row=1, pady=5)
+
+        self.password_btn = tk.Button(self.btns_frame, text=conf['copy_password_btn_caption'],
+                                       width=13, height=2)
+        self.password_btn.grid(row=2, pady=5)
