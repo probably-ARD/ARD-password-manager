@@ -26,10 +26,9 @@ ADD_NEW_APP_WIN_CONF = {
     'save_btn': 'сохранить',
     'gen_password_radiobtn': 'сгенерировать пароль',
     'numbs_checkbox': 'числа',
-    'ALPH_checkbox': 'АЛФАВИТ',
-    'alph_checkbox': 'алфавит',
-    'spec_symbs_checkbox': 'спец символы',
-    'add_symbs_textbox': 'дополнительные символы',
-    'password_len_textbox': 'длина пароля',
+    'ALPH_checkbtn': 'АЛФАВИТ',
+    'alph_checkbtn': 'алфавит',
+    'spec_symbs_checkbtn': 'спец символы',
+    'password_len_spinbox': 'длина пароля',
     'gen_password_btn': 'сгенерировать'
 }
