@@ -13,55 +13,47 @@ class passwordStorage:
         formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
         handler = logging.FileHandler(LOG_PATH, encoding='utf-8')
         handler.setFormatter(formatter)
-
         logger.addHandler(handler)
         
-        logger.info(f'start __init__')
-        logger.debug(f'(__init__) params\n\tstorage path: {external_storage_path}')
-
         self.__logger = logger
+        self.__logger.debug(f'(__init__) params\n\tstorage path: {external_storage_path}')
 
-        # check parameters
-        self.__check_params(
-            [external_storage_path],
-            [str]
-        )
-
-        # reading storage
-        try:
-            with open(external_storage_path, 'r', encoding='utf-8') as f:
-                storage = dict(json.load(f))
-            logger.debug(f'(__init__) reading storage\n\tstorage: {storage}')
-        except Exception as e:
-            logger.warning(f'(__init__) Error with reading storage\n{e}', stack_info=True)
-        
         self.__external_storage_path = external_storage_path
-        self.__storage = storage
+        self.__read_storage()
 
+    def __read_storage(self) -> None:
+        'reading storage file'
+        with open(self.__external_storage_path, 'r', encoding='utf-8') as f:
+            try:
+                self.__storage = json.load(f)
+                self.__logger.info('\nreading storage is done')
+            except FileNotFoundError as e:
+                self.__logger.critical('\nFileNotFoundError\n{e}')
+                raise FileNotFoundError(CORE_ERRORS['FileNotFoundError'])
 
-    def __save_storage(self) -> None:
+            
+    def __write_storage(self) -> None:
         '''
         func to fast and simple writing storage\n
         !!! storage writing from self.__storage !!!
         '''
-        self.__logger.info('start __save_storage')
-        self.__logger.debug(f'(__save_storage) params\n\tstorage: {self.__storage}')
+        self.__logger.debug(f'(__save_storage)\n\tstorage: {self.__storage}')
         
         try:
             with open(self.__external_storage_path, 'w', encoding='utf-8') as f:
                 json.dump(self.__storage, f)
-            self.__logger.debug(f'(__save_storage) writing storage DONE\n')
+            self.__logger.debug(f'(__save_storage) writing storage DONE')
         except Exception as e:
             self.__logger.warning(f'(__save_storage) Error with writing storge\n{e}', stack_info=True)
+            raise SystemError("Changes couldn't be recorded. Details in .log")
 
-    
-    def __gen_password(self,
+
+    def gen_password(self,
         numbs: bool = True,
-        spec_symbs: bool = True,
+        spec_symbs: bool = False,
         alph_lower: bool = True,
         alph_upper: bool = True,
-        password_len: int = 12,
-        add_symbs: str = None
+        password_len: int = 12
     ) -> str:
         '''
         generate random password
@@ -70,9 +62,10 @@ class passwordStorage:
         self.__logger.debug(f'(__gen_password) params\n\tnumbs: {numbs}\n\tspec_symbs: {spec_symbs}\n\talph_lower: {alph_lower}\n\talph_upper: {alph_upper}\n\tpassword_len: {password_len}\n\tadd_symbs: {add_symbs}')
         # check parameters
         self.__check_params(
-            [numbs, spec_symbs, alph_lower, alph_upper, password_len, add_symbs],
-            [bool, bool, bool, bool, int, (str, type(None))]
+            [numbs, spec_symbs, alph_lower, alph_upper, password_len],
+            [bool, bool, bool, bool, int]
         )
+        
         if password_len <= 0:
             self.__logger.warning('ValueError password_len must be > 0')
             raise ValueError('password_len must be > 0')
@@ -91,9 +84,6 @@ class passwordStorage:
         
         if alph_upper == True:
             symbs.append('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-        
-        if add_symbs is not None:
-            symbs.append(add_symbs)
 
         # password generation
         password = ''
@@ -167,8 +157,7 @@ class passwordStorage:
         '''
         get dict with storage
         '''
-        self.__logger.info('start get_storage')
-        self.__logger.debug(f'(get_storage)\n\tstorage: {self.__storage}\n')
+        self.__logger.info('\ngetting storage')
         # dict() need to make copy storage
         return dict(self.__storage)
 

@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.filedialog as fd
+from password_manager.model.core import passwordStorage
 from password_manager.view.wins import wins_config
 
 
@@ -52,9 +53,6 @@ class mainWin(tk.Tk):
 
     def __update_apps_listBox(self, apps_list: list):
         'update listbox'
-        if not isinstance(apps_list, list):
-            raise TypeError(f'argument apps_list must be list type, not {type(apps_list)}')
-
         self.apps_listBox.delete(0, self.apps_listBox.size())
 
         for i in range(len(apps_list)):
@@ -65,12 +63,11 @@ class mainWin(tk.Tk):
 
     def __open_storage(self):
         'get storage path, check, send to listbox with apps'
-        storage_path = fd.askopenfile(filetypes=([("Json", '*.json')]))
-        # проверить файл, открыть файл, запихнуть данные в лист с приложениями ----------------------------------------------------------
-        self.apps_list = ['try1', 'try2', 'try3']
+        storage_path = fd.askopenfile(filetypes=([("Json", '*.json')])).name
+        self.storage = passwordStorage(storage_path)
+        self.apps_list = list(self.storage.get_storage().keys())
         self.__update_apps_listBox(self.apps_list)
 
     def __app_btn_click(self):
         'action at the click of a check app btn'
         select_app_ind = self.apps_listBox.curselection()
-        # доделать открытие окна с просмотром ------------------------------------------------------
