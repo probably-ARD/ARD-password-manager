@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.filedialog as fd
 from password_manager.model.core import passwordStorage
 from password_manager.view.wins import wins_config
+from password_manager.view.wins.check_app_data import checAppDatakWin
 
 
 class mainWin(tk.Tk):
@@ -70,4 +71,10 @@ class mainWin(tk.Tk):
 
     def __app_btn_click(self):
         'action at the click of a check app btn'
-        select_app_ind = self.apps_listBox.curselection()
+        select_app_ind = self.apps_listBox.curselection()[0]
+        storage = self.storage.get_storage()
+        apps_names = list(storage.keys())
+        
+        data = storage[apps_names[select_app_ind]]
+        check_app_data_win = checAppDatakWin(data)
+        check_app_data_win.grab_set()

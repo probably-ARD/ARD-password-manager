@@ -3,22 +3,25 @@ from password_manager.view.wins import wins_config
 
 
 class checAppDatakWin(tk.Tk):
-    def __init__(self, 
-                 login: str, 
-                 password: str,
-                 data: str
-                 ):
+    def __init__(self, data: dict):
         super().__init__()
 
         conf = wins_config.CHECK_WIN_CONF
 
+        text = f'''
+        app: {data['app']}
+        login: {data['login']}
+        password: {data['password']}
+        add_info: {data['add_info']}
+        '''
+        
         # win confs
         self.geometry("400x210+600+300")
         self.resizable(False, False)
         self.title(conf['win_title'])
 
         # storage info label
-        self.label = tk.Label(self, text=data, width=39, height=13)
+        self.label = tk.Label(self, text=text, width=39, height=13)
         self.label.grid(column=1, row=1, padx=5, pady=5)
 
         # btns frame

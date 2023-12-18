@@ -1,4 +1,3 @@
-from password_manager.model.core import passwordStorage
 from password_manager.view.wins.main import mainWin
 
 
