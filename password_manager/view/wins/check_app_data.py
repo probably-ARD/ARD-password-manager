@@ -3,8 +3,10 @@ from password_manager.view.wins import wins_config
 
 
 class checAppDatakWin(tk.Tk):
-    def __init__(self, data: dict):
+    def __init__(self, data: dict, parent: tk.Tk):
         super().__init__()
+
+        self.parent = parent
 
         conf = wins_config.CHECK_WIN_CONF
 
@@ -28,11 +30,19 @@ class checAppDatakWin(tk.Tk):
         self.btns_frame = tk.Frame(self, width=100, height=200)
         self.btns_frame.grid(column=2, row=1, padx=5, pady=5)
 
-        # btns
+        # btns --------------------------------------------------------------------------
         self.login_btn = tk.Button(self.btns_frame, text=conf['copy_login_btn_caption'],
-                                    width=13, height=2)
+                                    width=13, height=2, 
+                                    state='disabled'
+                                    )
         self.login_btn.grid(row=1, pady=5)
 
         self.password_btn = tk.Button(self.btns_frame, text=conf['copy_password_btn_caption'],
-                                       width=13, height=2)
+                                       width=13, height=2, 
+                                    state='disabled'
+                                    )
         self.password_btn.grid(row=2, pady=5)
+
+        # checking the window closure and hiding the parent
+        self.protocol("WM_DELETE_WINDOW", lambda: (parent.deiconify(), self.destroy()))
+        self.parent.withdraw()

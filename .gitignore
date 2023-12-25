@@ -1,4 +1,5 @@
 *.log
+*.txt
 __pycache__
 test.py
 /venv

@@ -12,6 +12,8 @@ class addNewApp(tk.Tk):
         #self.resizable(False, False)
         self.title(conf['win_title'])
 
+        self.data = {'app': '', 'password': '', }
+        
         # app frame
         self.app_frame = tk.Frame(self, width=400, height=400)
         self.app_frame.grid(column=1, row=1, padx=5, pady=5)
@@ -43,6 +45,10 @@ class addNewApp(tk.Tk):
 
         self.add_info_label = tk.Label(self.app_frame, text=conf['add_info_label'], width=10, height=5)
         self.add_info_label.grid(column=2, row=4, padx=5, pady=5)
+
+        # save btn
+        self.save_btn = tk.Button(self.app_frame, text=conf['save_btn'], command=self.__save_btn_click)
+        self.save_btn.grid(columnspan=2, row=5, padx=5, pady=5)
 
         # gen password frame
         self.gen_password_frame = tk.Frame(self, width=200, height=400)
@@ -82,3 +88,16 @@ class addNewApp(tk.Tk):
         # gen password btn
         self.gen_password_btn = tk.Button(self.gen_password_frame, text=conf['gen_password_btn'])
         self.gen_password_btn.grid(padx=5, pady=5, row=8, sticky='ew')
+
+    
+    def __save_btn_click(self):
+        app = self.app_textbox.get("1.0",'end-1c')
+        login = self.login_textbox.get("1.0",'end-1c')
+        password = self.password_textbox.get("1.0",'end-1c')
+        add_inf = self.add_info_textbox.get("1.0",'end-1c')
+        self.save_data = {
+            'app': app,
+            'login': login,
+            'password': password,
+            'add_inf': add_inf
+        }

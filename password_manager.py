@@ -1,4 +1,4 @@
-from password_manager.view.wins.main import mainWin
+from password_manager.view.wins.mainWin import mainWin
 
 
 def main():
